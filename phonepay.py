@@ -662,16 +662,15 @@ def map_u():
 
 
 def top_u():
-    top_trans_df = pd.read_sql('top_trans', engine)
+    top_user_df = pd.read_sql('top_user', engine)
 
-    states = top_trans_df['States'].unique()
+    states = top_user_df['States'].unique()
 
     row1 = st.columns(2)
     row2 = st.columns(2)
     row3 = st.columns(4)
     row4 = st.columns(2)
-    row5 = st.columns(2)
-    row6 = st.columns(2)
+    
     
 
     with row1[0]:
@@ -685,23 +684,23 @@ def top_u():
             pass
         
         with sub_columns[1]:
-            coloum1 = top_trans_df["Years"].unique()
+            coloum1 = top_user_df["Years"].unique()
             selected_year = st.selectbox("Select a year", coloum1)
 
     with row2[0]:
-        TTS = top_trans_df[top_trans_df["Years"]==selected_year]
+        TUS = top_user_df[top_user_df["Years"]==selected_year]
 
-        TT_S_Map = TTS.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
-        TT_S_Map.reset_index(inplace = True)
+        TU_S_Map = TUS.groupby('States')['Reg_users'].sum()
+        TU_S_Map = TU_S_Map.to_frame().reset_index()
 
         fig1 = px.choropleth(
-            TT_S_Map,
+            TU_S_Map,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
-            color='Transaction_count',
+            color='Reg_users',
             color_continuous_scale='turbo',
-            range_color = (TT_S_Map['Transaction_count'].min(), TT_S_Map['Transaction_count'].max()),
+            range_color = (TU_S_Map['Reg_users'].min(), TU_S_Map['Reg_users'].max()),
             title = 'Transacion count'
             )
 
@@ -715,22 +714,22 @@ def top_u():
     else:
 
         with row2[1]:
-            TTS = top_trans_df[top_trans_df["Years"]==selected_year]
+            TUS = top_user_df[top_user_df["Years"]==selected_year]
 
-            TT_S_Map = TTS.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
-            TT_S_Map.reset_index(inplace = True)
+            TU_S_Map = TUS.groupby('States')['Reg_users'].sum()
+            TU_S_Map = TU_S_Map.to_frame().reset_index()
             
-            stateTT = TT_S_Map[TT_S_Map['States'] == selected_state]
+            stateTU = TU_S_Map[TU_S_Map['States'] == selected_state]
                     
 
             fig2 = px.choropleth(
-                stateTT,
+                stateTU,
                 geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
                 featureidkey='properties.ST_NM',
                 locations='States',
-                color='Transaction_amount',
+                color='Reg_users',
                 color_continuous_scale='turbo',
-                range_color = (TT_S_Map['Transaction_amount'].min(), TT_S_Map['Transaction_amount'].max()),
+                range_color = (TU_S_Map['Reg_users'].min(), TU_S_Map['Reg_users'].max()),
                 title = 'Transacion amount'
                 )
 
@@ -741,22 +740,22 @@ def top_u():
         
 
             with row3[1]:
-                selected_quater = st.selectbox("Select a quater", top_trans_df['Quater'].unique())
+                selected_quater = st.selectbox("Select a quater", top_user_df['Quater'].unique())
 
                 
             with row4[0]:
 
-                    TT_Pin = top_trans_df.query('States == @selected_state and Years == @selected_year and Quater == @selected_quater').reset_index(drop=True)
+                    TU_Pin = top_user_df.query('States == @selected_state and Years == @selected_year and Quater == @selected_quater').reset_index(drop=True)
 
-                    st.write(TT_Pin[['Pincodes', 'Transaction_count']])
+                    st.write(TU_Pin[['Pincodes', 'Reg_users']])
 
-                    fig3 = px.bar(TT_Pin, x ='Transaction_count',
+                    fig3 = px.bar(TU_Pin, x ='Reg_users',
                                             y= 'Pincodes',
                                             orientation='h',
                                             title='Top 10 Transaction count'
                                             )
                    
-                    fig3.update_layout(xaxis_title='Transaction_count',title_x=0.35,  yaxis_title='Pincodes')
+                    fig3.update_layout(xaxis_title='Reg_users',title_x=0.35,  yaxis_title='Pincodes')
 
                     st.plotly_chart(fig3)
             
