@@ -8,7 +8,7 @@ engine = create_engine('postgresql+psycopg2://postgres:1005@localhost/phonepay')
 import plotly.express as px
 
 
-# all df
+# all datframe
 agg_trans_df = pd.read_sql('agg_trans', engine)
 agg_users_df = pd.read_sql('agg_users', engine)
 map_trans_df = pd.read_sql('map_trans', engine)
@@ -16,12 +16,10 @@ map_users_df = pd.read_sql('map_users', engine)
 top_trans_df = pd.read_sql('top_trans', engine)
 top_user_df = pd.read_sql('top_user', engine)
 
-#agg_trans_df.query(' State == "Tamil Nadu" and Year == "2023" and Quater == 1 and Transaction_type == "Merchant payments" ')
-
-#fig = px.pie(agg_trans_df, names='Transaction_type', values='Transaction_count')
 
 
-def agg_t():
+#"Analysis of State-wise Financial Transactions in India: Visualizing Trends and Patterns Based on Transaction Types"
+def agg_trans():
 
     agg_trans_df = pd.read_sql('agg_trans', engine)
 
@@ -35,30 +33,27 @@ def agg_t():
     row5 = st.columns(2)
     row6 = st.columns(2)
 
-    with row1[0]:
-        pass
-    
     with row1[1]:
         sub_columns = st.columns(2)
         
         with sub_columns[0]:
             coloum1 = [col for col in agg_trans_df.columns if col not in excluded_columns]
-            selected_coloum1 = st.selectbox("Select a coloum1", coloum1) 
+            selected_coloum1 = st.selectbox("Choose the 1st coloum", coloum1) 
         
         with sub_columns[1]:
             if selected_coloum1:
                 coloum2 = [col for col in coloum1 if col != selected_coloum1]
-            selected_coloum2 = st.selectbox("Select a coloum2", coloum2) 
+            selected_coloum2 = st.selectbox("Choose the 2nd coloum", coloum2) 
 
     with row2[0]:
-        fig3 = px.sunburst(agg_trans_df, path=[selected_coloum1, selected_coloum2], values='Transaction_count')
-        fig3.update_layout(title='Transaction Count', title_x=0.35)
-        st.plotly_chart(fig3)
+        agg_trans_fig1 = px.sunburst(agg_trans_df, path=[selected_coloum1, selected_coloum2], values='Transaction_count')
+        agg_trans_fig1.update_layout(title='Transaction Count', title_x=0.35)
+        st.plotly_chart(agg_trans_fig1)
 
     with row2[1]:
-        fig4 = px.sunburst(agg_trans_df, path=[selected_coloum1, selected_coloum2], values='Transaction_amount')
-        fig4.update_layout(title='Transaction Amount', title_x=0.35)
-        st.plotly_chart(fig4)
+        agg_trans_fig2 = px.sunburst(agg_trans_df, path=[selected_coloum1, selected_coloum2], values='Transaction_amount')
+        agg_trans_fig2.update_layout(title='Transaction Amount', title_x=0.35)
+        st.plotly_chart(agg_trans_fig2)
 
     with row3[0]:
         selected_state = st.selectbox("Select a state", ['All states'] + list(states))
@@ -68,75 +63,67 @@ def agg_t():
             stateAT = agg_trans_df.query('States == @selected_state')
 
     with row4[0]:
-        fig1 = px.scatter(stateAT, x='Transaction_count', y='Transaction_amount', color='Transaction_type',
+        agg_trans_fig3 = px.scatter(stateAT, x='Transaction_count', y='Transaction_amount', color='Transaction_type',
                         facet_col='Years', facet_col_wrap=3,
                         title='Transaction Count vs Transaction Amount by Transaction Type and Year')
-        fig1.update_layout(xaxis_title='Transaction Count', yaxis_title='Transaction Amount')
-        st.plotly_chart(fig1)
-        
-
-    with row5[0]:
-        pass
-    
+        agg_trans_fig3.update_layout(xaxis_title='Transaction Count', yaxis_title='Transaction Amount')
+        st.plotly_chart(agg_trans_fig3)
+  
     with row5[1]:
         sub_columns = st.columns(2)
-        
-        with sub_columns[0]:
-            pass
-        
+     
         with sub_columns[1]:
             coloum1 = agg_trans_df["Years"].unique()
             selected_year = st.selectbox("Select a year", coloum1)
 
     with row6[0]:
-        ATS = agg_trans_df[agg_trans_df["Years"]==selected_year]
-        ATS_M = ATS.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
-        ATS_M.reset_index(inplace = True)
+        agg_trans_yr = agg_trans_df[agg_trans_df["Years"]==selected_year]
+        agg_trans_State = agg_trans_yr.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
+        agg_trans_State.reset_index(inplace = True)
 
-        fig6 = px.choropleth(
-            ATS_M,
+        agg_trans_fig4 = px.choropleth(
+            agg_trans_State,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='Transaction_count',
             color_continuous_scale='turbo',
-            range_color = (ATS_M['Transaction_count'].min(), ATS_M['Transaction_count'].max()),
+            range_color = (agg_trans_State['Transaction_count'].min(), agg_trans_State['Transaction_count'].max()),
             title = 'Transacion count'
             )
 
-        fig6.update_geos(fitbounds="locations", visible=False)
+        agg_trans_fig4.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig6)
+        st.plotly_chart(agg_trans_fig4)
 
     with row6[1]:
-        ATS = agg_trans_df[agg_trans_df["Years"]==selected_year]
-        ATS_M = ATS.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
-        ATS_M.reset_index(inplace = True)
+        agg_trans_yr = agg_trans_df[agg_trans_df["Years"]==selected_year]
+        agg_trans_State = agg_trans_yr.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
+        agg_trans_State.reset_index(inplace = True)
 
-        fig7 = px.choropleth(
-            ATS_M,
+        agg_trans_fig5 = px.choropleth(
+            agg_trans_State,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='Transaction_amount',
             color_continuous_scale='turbo',
-            range_color = (ATS_M['Transaction_amount'].min(), ATS_M['Transaction_amount'].max()),
+            range_color = (agg_trans_State['Transaction_amount'].min(), agg_trans_State['Transaction_amount'].max()),
             title = 'Transacion amount'
             )
 
-        fig7.update_geos(fitbounds="locations", visible=False)
+        agg_trans_fig5.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig7)
-
-
+        st.plotly_chart(agg_trans_fig5)
 
 
 
-def map_t():
+
+#"Analyzing Regional Financial Transactions in India: Insights from State and District-Level Data"
+def map_trans():
     map_trans_df = pd.read_sql('map_trans', engine)
 
     states = map_trans_df['States'].unique()
-    excluded_columns = ['States', 'Transaction_count', 'Transaction_amount']
     
     row1 = st.columns(2)
     row2 = st.columns(2)
@@ -147,69 +134,65 @@ def map_t():
 
     with row1[0]:
         selected_state = st.selectbox("Select a state", ['All states'] + list(states))
-        
     
     with row1[1]:
         sub_columns = st.columns(2)
-        
-        with sub_columns[0]:
-            pass
         
         with sub_columns[1]:
             coloum1 = map_trans_df["Years"].unique()
             selected_year = st.selectbox("Select a year", coloum1)
 
     with row2[0]:
-        MTS = map_trans_df[map_trans_df["Years"]==selected_year]
+        map_trans_yr = map_trans_df[map_trans_df["Years"]==selected_year]
 
-        MT_S_Map = MTS.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
-        MT_S_Map.reset_index(inplace = True)
+        map_trans_state = map_trans_yr.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
+        map_trans_state.reset_index(inplace = True)
 
         if selected_state == 'All states':
-            stateMT = MT_S_Map
+            stateMT = map_trans_state
         else:
-            stateMT = MT_S_Map[MT_S_Map['States'] == selected_state]
+            stateMT = map_trans_state[map_trans_state['States'] == selected_state]
                 
-        fig1 = px.choropleth(
+        map_trans_fig1 = px.choropleth(
             stateMT,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='Transaction_count',
             color_continuous_scale='turbo',
-            range_color = (MT_S_Map['Transaction_count'].min(), MT_S_Map['Transaction_count'].max()),
+            range_color = (map_trans_state['Transaction_count'].min(), map_trans_state['Transaction_count'].max()),
             title = 'Transacion count'
             )
 
-        fig1.update_geos(fitbounds="locations", visible=False)
+        map_trans_fig1.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig1)
+        st.plotly_chart(map_trans_fig1)
 
     with row2[1]:
-        MTS = map_trans_df[map_trans_df["Years"]==selected_year]
+        map_trans_yr = map_trans_df[map_trans_df["Years"]==selected_year]
 
-        MT_S_Map = MTS.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
-        MT_S_Map.reset_index(inplace = True)
+        map_trans_state = map_trans_yr.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
+        map_trans_state.reset_index(inplace = True)
         if selected_state == 'All states':
-            stateMT = MT_S_Map
+            stateMT = map_trans_state
         else:
-            stateMT = MT_S_Map[MT_S_Map['States'] == selected_state]
+            stateMT = map_trans_state[map_trans_state['States'] == selected_state]
                 
 
-        fig2 = px.choropleth(
+        map_trans_fig2 = px.choropleth(
             stateMT,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='Transaction_amount',
             color_continuous_scale='turbo',
-            range_color = (MT_S_Map['Transaction_amount'].min(), MT_S_Map['Transaction_amount'].max()),
+            range_color = (map_trans_state['Transaction_amount'].min(), map_trans_state['Transaction_amount'].max()),
             title = 'Transacion amount'
             )
 
-        fig2.update_geos(fitbounds="locations", visible=False)
+        map_trans_fig2.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig2)
+        st.plotly_chart(map_trans_fig2)
 
     if selected_state == 'All states':
             pass
@@ -217,67 +200,70 @@ def map_t():
     else:
         with row3[0]:
 
-                MT_D = map_trans_df.query('States == @selected_state and Years == @selected_year')
+                map_trans_dis = map_trans_df.query('States == @selected_state and Years == @selected_year')
 
 
-                fig3 = px.bar(MT_D, y=MT_D['District_name'].apply(lambda x: x.replace("district", "")), 
+                map_trans_fig3 = px.bar(map_trans_dis, y=map_trans_dis['District_name'].apply(lambda x: x.replace("district", "")), 
                                 x=['Transaction_count'],
                                 color='Quater',
                                 barmode='stack', orientation='h',
                                 title='Transaction Count by District',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
 
-                fig3.update_layout(xaxis_title='Transaction count', title_x=0.35, yaxis_title='Districts', legend_title='Type', height= 700)
+                map_trans_fig3.update_layout(xaxis_title='Transaction count', title_x=0.35, yaxis_title='Districts', legend_title='Type', height= 700)
 
-                st.plotly_chart(fig3)
+                st.plotly_chart(map_trans_fig3)
         
         with row3[1]:
             
-                MT_D_M = map_trans_df.query('States == @selected_state and Years == @selected_year')
+                map_trans_dis_M = map_trans_df.query('States == @selected_state and Years == @selected_year')
 
 
-                fig4 = px.bar(MT_D_M, y=MT_D_M['District_name'].apply(lambda x: x.replace("district", "")), 
+                map_trans_fig4 = px.bar(map_trans_dis_M, y=map_trans_dis_M['District_name'].apply(lambda x: x.replace("district", "")), 
                                 x=['Transaction_amount'],
                                 color='Quater',
                                 barmode='stack', orientation='h',
                                 title='Transaction amount by District',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
 
-                fig4.update_layout(xaxis_title='Transaction amount', title_x=0.35, yaxis_title='Districts', legend_title='Type', height= 700)
+                map_trans_fig4.update_layout(xaxis_title='Transaction amount', title_x=0.35, yaxis_title='Districts', legend_title='Type', height= 700)
 
-                st.plotly_chart(fig4)
+                st.plotly_chart(map_trans_fig4)
 
         with row4[1]:
-            selected_dic = st.selectbox("Select a district", sorted(MT_D_M['District_name'].unique()))
+            selected_dic = st.selectbox("Select a district", sorted(map_trans_dis_M['District_name'].unique()))
 
-            MT_D_bar = MT_D_M.query('District_name == @selected_dic')
+            map_trans_dis_bar = map_trans_dis_M.query('District_name == @selected_dic')
         
         with row5[0]:
-            fig5 = px.bar(MT_D_bar, y='Transaction_count', 
+            map_trans_fig5 = px.bar(map_trans_dis_bar, y='Transaction_count', 
                                 x='Quater',
                                 color='Quater',
                                 barmode='stack',
                                 title='Transaction count by District',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
 
-            fig5.update_layout(xaxis_title='Quater', title_x=0.35, yaxis_title='Transaction count', legend_title='Type')
+            map_trans_fig5.update_layout(xaxis_title='Quater', title_x=0.35, yaxis_title='Transaction count', legend_title='Type')
 
-            st.plotly_chart(fig5)
+            st.plotly_chart(map_trans_fig5)
 
         with row5[1]:
-            fig6 = px.bar(MT_D_bar, y='Transaction_amount', 
+            map_trans_fig6 = px.bar(map_trans_dis_bar, y='Transaction_amount', 
                                 x='Quater',
                                 color='Quater',
                                 barmode='stack',
                                 title='Transaction amount by District',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
 
-            fig6.update_layout(xaxis_title='Quater', title_x=0.35, yaxis_title='Transaction amount', legend_title='Type')
+            map_trans_fig6.update_layout(xaxis_title='Quater', title_x=0.35, yaxis_title='Transaction amount', legend_title='Type')
 
-            st.plotly_chart(fig6)
+            st.plotly_chart(map_trans_fig6)
 
 
-def top_t():
+
+
+#"Exploring Regional Financial Transactions in India: A Deep Dive into Top Transactions by State, Quarter and Pincode"
+def top_trans():
     top_trans_df = pd.read_sql('top_trans', engine)
 
     states = top_trans_df['States'].unique()
@@ -286,75 +272,69 @@ def top_t():
     row2 = st.columns(2)
     row3 = st.columns(4)
     row4 = st.columns(2)
-    row5 = st.columns(2)
-    row6 = st.columns(2)
     
 
     with row1[0]:
         selected_state = st.selectbox("Select a state", ['All states'] + list(states))
-        
     
     with row1[1]:
         sub_columns = st.columns(2)
-        
-        with sub_columns[0]:
-            pass
         
         with sub_columns[1]:
             coloum1 = top_trans_df["Years"].unique()
             selected_year = st.selectbox("Select a year", coloum1)
 
     with row2[0]:
-        TTS = top_trans_df[top_trans_df["Years"]==selected_year]
+        top_trans_yr = top_trans_df[top_trans_df["Years"]==selected_year]
 
-        TT_S_Map = TTS.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
-        TT_S_Map.reset_index(inplace = True)
+        top_trans_state = top_trans_yr.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
+        top_trans_state.reset_index(inplace = True)
 
         if selected_state == 'All states':
-            stateTT = TT_S_Map
+            stateTT = top_trans_state
         else:
-            stateTT = TT_S_Map[TT_S_Map['States'] == selected_state]
+            stateTT = top_trans_state[top_trans_state['States'] == selected_state]
                 
-        fig1 = px.choropleth(
+        top_trans_fig1 = px.choropleth(
             stateTT,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='Transaction_count',
             color_continuous_scale='turbo',
-            range_color = (TT_S_Map['Transaction_count'].min(), TT_S_Map['Transaction_count'].max()),
+            range_color = (top_trans_state['Transaction_count'].min(), top_trans_state['Transaction_count'].max()),
             title = 'Transacion count'
             )
 
-        fig1.update_geos(fitbounds="locations", visible=False)
+        top_trans_fig1.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig1)
+        st.plotly_chart(top_trans_fig1)
 
     with row2[1]:
-        TTS = top_trans_df[top_trans_df["Years"]==selected_year]
+        top_trans_yr = top_trans_df[top_trans_df["Years"]==selected_year]
 
-        TT_S_Map = TTS.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
-        TT_S_Map.reset_index(inplace = True)
+        top_trans_state = top_trans_yr.groupby('States')[['Transaction_count', 'Transaction_amount']].sum()
+        top_trans_state.reset_index(inplace = True)
         if selected_state == 'All states':
-            stateTT = TT_S_Map
+            stateTT = top_trans_state
         else:
-            stateTT = TT_S_Map[TT_S_Map['States'] == selected_state]
+            stateTT = top_trans_state[top_trans_state['States'] == selected_state]
                 
 
-        fig2 = px.choropleth(
+        top_trans_fig2 = px.choropleth(
             stateTT,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='Transaction_amount',
             color_continuous_scale='turbo',
-            range_color = (TT_S_Map['Transaction_amount'].min(), TT_S_Map['Transaction_amount'].max()),
+            range_color = (top_trans_state['Transaction_amount'].min(), top_trans_state['Transaction_amount'].max()),
             title = 'Transacion amount'
             )
 
-        fig2.update_geos(fitbounds="locations", visible=False)
+        top_trans_fig2.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig2)
+        st.plotly_chart(top_trans_fig2)
 
         if selected_state == 'All states':
             pass
@@ -368,50 +348,46 @@ def top_t():
             with row4[0]:
 
                     TT_Pin = top_trans_df.query('States == @selected_state and Years == @selected_year and Quater == @selected_quater').reset_index(drop=True)
+                    TT_Pin['Pincodes']=TT_Pin['Pincodes'].apply(lambda x: x + " -")
 
-                    st.write(TT_Pin[['Pincodes', 'Transaction_count']])
-
-                    fig3 = px.bar(TT_Pin, x ='Transaction_count',
+                    top_trans_fig3 = px.bar(TT_Pin, x ='Transaction_count',
                                             y= 'Pincodes',
+                                            color='Transaction_count',
                                             orientation='h',
                                             title='Top 10 Transaction count'
                                             )
                    
-                    fig3.update_layout(xaxis_title='Transaction_count',title_x=0.35,  yaxis_title='Pincodes')
+                    top_trans_fig3.update_layout(xaxis_title='Transaction_count',title_x=0.35,  yaxis_title='Pincodes')
 
-                    st.plotly_chart(fig3)
+                    st.plotly_chart(top_trans_fig3)
+
+                    #st.write(TT_Pin[['Pincodes', 'Transaction_count']])
             
             with row4[1]:
                 
                     TT_Pin = top_trans_df.query('States == @selected_state and Years == @selected_year and Quater == @selected_quater').reset_index(drop=True)
                     TT_Pin['Pincodes']=TT_Pin['Pincodes'].apply(lambda x: x + " -")
 
-                    st.write(TT_Pin[['Pincodes', 'Transaction_amount']])
-
-                    st.write(TT_Pin.describe())
-
-                    fig4 = px.bar(TT_Pin, y='Pincodes', 
-                                x='Transaction_amount'
-                                #color='Transaction_amount',
-                                #barmode='stack',
-                                # title='Top 10 Transaction amount',
-                                # labels={'value': 'Transaction', 'variable': 'Type'}
+                    top_trans_fig4 = px.bar(TT_Pin, y='Pincodes', 
+                                x='Transaction_amount',
+                                color='Transaction_amount',
+                                barmode='stack',
+                                title='Top 10 Transaction amount',
+                                labels={'value': 'Transaction', 'variable': 'Type'}
                                 )
 
                     
 
-                    #fig4.update_layout(xaxis_title='Transaction amount', title_x=0.35, yaxis_title='Pincodes')
+                    top_trans_fig4.update_layout(xaxis_title='Transaction amount', title_x=0.35, yaxis_title='Pincodes')
 
-                    st.plotly_chart(fig4)
+                    st.plotly_chart(top_trans_fig4)
 
+                    #st.write(TT_Pin[['Pincodes', 'Transaction_amount']])
     
     
 
-
-
-
-
-def agg_u():
+#"Exploring User Registration Trends Across States and Brands in India"
+def agg_user():
     agg_users_df = pd.read_sql('agg_users', engine)
 
     states = agg_users_df['States'].unique()
@@ -422,102 +398,95 @@ def agg_u():
     
 
     with row1[0]:
-        selected_state = st.selectbox("Select a state", states)
+        selected_state = st.selectbox("Select the state", states)
     
     with row1[1]:
         sub_columns = st.columns(3)
         
         with sub_columns[0]:
-            selected_year = st.selectbox("Select a year", agg_users_df["Years"].unique())
+            selected_year = st.selectbox("Select the year", ['2018', '2019', '2020', '2021'])
         
         with sub_columns[1]:
-            selected_quater = st.selectbox("Select a quater", agg_users_df['Quater'].unique()) 
+            selected_quater = st.selectbox("Select the quater", agg_users_df['Quater'].unique()) 
         
         with sub_columns[2]:
-            AU_B = agg_users_df.query(' States == @selected_state and Years == @selected_year')
-            selected_brand = st.selectbox("Select a brand", AU_B["Brands"].unique())
+            agg_users_B = agg_users_df.query(' States == @selected_state and Years == @selected_year')
+            selected_brand = st.selectbox("Select the brand", agg_users_B["Brands"].unique())
 
     with row2[0]:
-        AU_Brand = agg_users_df.query(' States == @selected_state and Years == @selected_year and Quater == @selected_quater ')
+        agg_users_Brand = agg_users_df.query(' States == @selected_state and Years == @selected_year and Quater == @selected_quater ')
 
-        fig1 = px.bar(AU_Brand, y='Reg_user_count', 
+        agg_users_fig1 = px.bar(agg_users_Brand, y='Reg_user_count', 
                                 x='Brands',
                                 color='Quater',
                                 barmode='stack',
-                                title='Distribution of User Brand Count',
+                                title=f'Registered count of Brands for the {selected_quater} quater of year {selected_year}',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
 
-        fig1.update_layout(xaxis_title='Brands', title_x=0.35, yaxis_title='Count', legend_title='Type')
+        agg_users_fig1.update_layout(xaxis_title='Brands', yaxis_title='Count', legend_title='Type')
 
-        st.plotly_chart(fig1)
+        st.plotly_chart(agg_users_fig1)
 
 
     with row2[1]:
-        AU_Brand = agg_users_df.query(' States == @selected_state and Years == @selected_year and Brands == @selected_brand ')
+        agg_users_Brand = agg_users_df.query(' States == @selected_state and Years == @selected_year and Brands == @selected_brand ')
 
-        fig2 = px.bar(AU_Brand, y='Reg_percentage', 
+        agg_users_fig2 = px.bar(agg_users_Brand, y='Reg_percentage', 
                                 x='Quater',
                                 color='Quater',
                                 barmode='stack',
-                                title='Distribution of User Brand Percentage',
+                                title=f'Analysis of \"{selected_brand}\" for the year {selected_year} in Percentage',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
 
-        fig2.update_layout(xaxis_title=f'{selected_brand}', title_x=0.35, yaxis_title='Percentage', legend_title='Type')
+        agg_users_fig2.update_layout(xaxis_title=f'{selected_brand}', title_x=0.1, yaxis_title='Percentage', legend_title='Type')
 
-        st.plotly_chart(fig2)
+        st.plotly_chart(agg_users_fig2)
 
         
     with row3[0]:
-        AUS = agg_users_df[agg_users_df["Years"]==selected_year]
-        AUS_M = AUS.groupby('States')[['Reg_user_count', 'Reg_percentage']].sum()
-        AUS_M.reset_index(inplace = True)
+        agg_users_yr = agg_users_df[agg_users_df["Years"]==selected_year]
+        agg_users_state = agg_users_yr.groupby('States')[['Reg_user_count', 'Reg_percentage']].sum()
+        agg_users_state.reset_index(inplace = True)
 
-        fig6 = px.choropleth(
-            AUS_M,
+        agg_users_fig3 = px.choropleth(
+            agg_users_state,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='Reg_user_count',
             color_continuous_scale='turbo',
-            range_color = (AUS_M['Reg_user_count'].min(), AUS_M['Reg_user_count'].max()),
-            title = 'Registered count'
+            range_color = (agg_users_state['Reg_user_count'].min(), agg_users_state['Reg_user_count'].max()),
+            title = f'Registered count for {selected_year}'
             )
 
-        fig6.update_geos(fitbounds="locations", visible=False)
+        agg_users_fig3.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig6)
+        st.plotly_chart(agg_users_fig3)
 
     with row3[1]:
-        AUS = agg_users_df[agg_users_df["Years"]==selected_year]
-        AUS_M = AUS.groupby('States')[['Reg_user_count', 'Reg_percentage']].sum()
-        AUS_M.reset_index(inplace = True)
-        stateAU = AUS_M[AUS_M['States'] == selected_state]
+        agg_users_yr = agg_users_df[agg_users_df["Years"]==selected_year]
+        agg_users_state = agg_users_yr.groupby('States')[['Reg_user_count', 'Reg_percentage']].sum()
+        agg_users_state.reset_index(inplace = True)
+        stateAU = agg_users_state[agg_users_state['States'] == selected_state]
 
-        fig7 = px.choropleth(
+        agg_users_fig4 = px.choropleth(
             stateAU,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='Reg_user_count',
             color_continuous_scale='turbo',
-            range_color = (AUS_M['Reg_user_count'].min(), AUS_M['Reg_user_count'].max()),
-            title = 'Registered count'
+            range_color = (agg_users_state['Reg_user_count'].min(), agg_users_state['Reg_user_count'].max()),
+            title = f'Registered count of {selected_state} in {selected_year}'
             )
 
-        fig7.update_geos(fitbounds="locations", visible=False)
+        agg_users_fig4.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig7)
-
-
+        st.plotly_chart(agg_users_fig4)
 
 
-
-
-
-
-
-
-def map_u():
+#"Mapping User Engagement and Registration Patterns: Analyzing District-level Data in India"
+def map_user():
     map_users_df = pd.read_sql('map_users', engine)
 
     states = map_users_df['States'].unique()
@@ -530,7 +499,7 @@ def map_u():
     
 
     with row1[0]:
-        selected_state = st.selectbox("Select a state", ['All states'] + list(states))
+        selected_state = st.selectbox("Select the state", ['All states'] + list(states))
         
     
     with row1[1]:
@@ -541,59 +510,59 @@ def map_u():
         
         with sub_columns[1]:
             coloum1 = map_users_df["Years"].unique()
-            selected_year = st.selectbox("Select a year", coloum1)
+            selected_year = st.selectbox("Select the year", coloum1)
 
     with row2[0]:
-        MUS = map_users_df[map_users_df["Years"]==selected_year]
+        map_users_yr = map_users_df[map_users_df["Years"]==selected_year]
 
-        MU_S_Map = MUS.groupby('States')[['Reg_users', 'App_opens']].sum()
-        MU_S_Map.reset_index(inplace = True)
+        map_users_state = map_users_yr.groupby('States')[['Reg_users', 'App_opens']].sum()
+        map_users_state.reset_index(inplace = True)
 
         if selected_state == 'All states':
-            stateMU = MU_S_Map
+            stateMU = map_users_state
         else:
-            stateMU = MU_S_Map[MU_S_Map['States'] == selected_state]
+            stateMU = map_users_state[map_users_state['States'] == selected_state]
                 
-        fig1 = px.choropleth(
+        map_users_fig1 = px.choropleth(
             stateMU,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='Reg_users',
             color_continuous_scale='turbo',
-            range_color = (MU_S_Map['Reg_users'].min(), MU_S_Map['Reg_users'].max()),
+            range_color = (map_users_state['Reg_users'].min(), map_users_state['Reg_users'].max()),
             title = 'Registered users'
             )
 
-        fig1.update_geos(fitbounds="locations", visible=False)
+        map_users_fig1.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig1)
+        st.plotly_chart(map_users_fig1)
 
     with row2[1]:
-        MUS = map_users_df[map_users_df["Years"]==selected_year]
+        map_users_yr = map_users_df[map_users_df["Years"]==selected_year]
 
-        MU_S_Map = MUS.groupby('States')[['Reg_users', 'App_opens']].sum()
-        MU_S_Map.reset_index(inplace = True)
+        map_users_state = map_users_yr.groupby('States')[['Reg_users', 'App_opens']].sum()
+        map_users_state.reset_index(inplace = True)
         if selected_state == 'All states':
-            stateMU = MU_S_Map
+            stateMU = map_users_state
         else:
-            stateMU = MU_S_Map[MU_S_Map['States'] == selected_state]
+            stateMU = map_users_state[map_users_state['States'] == selected_state]
                 
 
-        fig2 = px.choropleth(
+        map_users_fig2 = px.choropleth(
             stateMU,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='App_opens',
             color_continuous_scale='turbo',
-            range_color = (MU_S_Map['App_opens'].min(), MU_S_Map['App_opens'].max()),
+            range_color = (map_users_state['App_opens'].min(), map_users_state['App_opens'].max()),
             title = 'Number of app open'
             )
 
-        fig2.update_geos(fitbounds="locations", visible=False)
+        map_users_fig2.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig2)
+        st.plotly_chart(map_users_fig2)
 
     if selected_state == 'All states':
             pass
@@ -601,71 +570,71 @@ def map_u():
     else:
         with row3[0]:
 
-                MU_D = map_users_df.query('States == @selected_state and Years == @selected_year')
+                map_users_dis = map_users_df.query('States == @selected_state and Years == @selected_year')
 
 
-                fig3 = px.bar(MU_D, y=MU_D['District_name'].apply(lambda x: x.replace("district", "")), 
+                map_users_fig3 = px.bar(map_users_dis, y=map_users_dis['District_name'].apply(lambda x: x.replace("district", "")), 
                                 x=['Reg_users'],
                                 color='Quater',
                                 barmode='stack', orientation='h',
                                 title='Registered users by District',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
 
-                fig3.update_layout(xaxis_title='Registered users', title_x=0.35, yaxis_title='Districts', legend_title='Type', height= 700)
+                map_users_fig3.update_layout(xaxis_title='Registered users', title_x=0.35, yaxis_title='Districts', legend_title='Type', height= 700)
 
-                st.plotly_chart(fig3)
+                st.plotly_chart(map_users_fig3)
         
         with row3[1]:
             
-                MU_D_M = map_users_df.query('States == @selected_state and Years == @selected_year')
+                map_users_dis_M = map_users_df.query('States == @selected_state and Years == @selected_year')
 
 
-                fig4 = px.bar(MU_D_M, y=MU_D_M['District_name'].apply(lambda x: x.replace("district", "")), 
+                map_users_fig4 = px.bar(map_users_dis_M, y=map_users_dis_M['District_name'].apply(lambda x: x.replace("district", "")), 
                                 x=['App_opens'],
                                 color='Quater',
                                 barmode='stack', orientation='h',
                                 title='Number of app open by District',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
 
-                fig4.update_layout(xaxis_title='Number of app open', title_x=0.35, yaxis_title='Districts', legend_title='Type', height= 700)
+                map_users_fig4.update_layout(xaxis_title='Number of app open', title_x=0.35, yaxis_title='Districts', legend_title='Type', height= 700)
 
-                st.plotly_chart(fig4)
+                st.plotly_chart(map_users_fig4)
 
         with row4[1]:
-            selected_dic = st.selectbox("Select a district", sorted(MU_D_M['District_name'].unique()))
+            selected_dic = st.selectbox("Select the district", sorted(map_users_dis_M['District_name'].unique()))
 
-            MU_D_bar = MU_D_M.query('District_name == @selected_dic')
+            map_users_dis_bar = map_users_dis_M.query('District_name == @selected_dic')
         
         with row5[0]:
-            fig5 = px.bar(MU_D_bar, y='Reg_users', 
+            map_users_fig5 = px.bar(map_users_dis_bar, y='Reg_users', 
                                 x='Quater',
                                 color='Quater',
                                 barmode='stack',
                                 title='Registered users by District',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
 
-            fig5.update_layout(xaxis_title='Quater', title_x=0.35, yaxis_title='Registered users', legend_title='Type')
+            map_users_fig5.update_layout(xaxis_title='Quater', title_x=0.35, yaxis_title='Registered users', legend_title='Type')
 
-            st.plotly_chart(fig5)
+            st.plotly_chart(map_users_fig5)
 
         with row5[1]:
-            fig6 = px.bar(MU_D_bar, y='App_opens', 
+            map_users_fig6 = px.bar(map_users_dis_bar, y='App_opens', 
                                 x='Quater',
                                 color='Quater',
                                 barmode='stack',
                                 title='Number of app open by District',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
 
-            fig6.update_layout(xaxis_title='Quater', title_x=0.35, yaxis_title='Number of app open', legend_title='Type')
+            map_users_fig6.update_layout(xaxis_title='Quater', title_x=0.35, yaxis_title='Number of app open', legend_title='Type')
 
-            st.plotly_chart(fig6)
-
-
+            st.plotly_chart(map_users_fig6)
 
 
 
 
-def top_u():
+
+
+def top_user():
     top_user_df = pd.read_sql('top_user', engine)
 
     states = top_user_df['States'].unique()
@@ -678,39 +647,36 @@ def top_u():
     
 
     with row1[0]:
-        selected_state = st.selectbox("Select a state", ['All states'] + list(states))
+        selected_state = st.selectbox("Select the state", ['All states'] + list(states))
         
     
     with row1[1]:
         sub_columns = st.columns(2)
-        
-        with sub_columns[0]:
-            pass
-        
+     
         with sub_columns[1]:
             coloum1 = top_user_df["Years"].unique()
-            selected_year = st.selectbox("Select a year", coloum1)
+            selected_year = st.selectbox("Select the year", coloum1)
 
     with row2[0]:
-        TUS = top_user_df[top_user_df["Years"]==selected_year]
+        top_user_yr = top_user_df[top_user_df["Years"]==selected_year]
 
-        TU_S_Map = TUS.groupby('States')['Reg_users'].sum()
-        TU_S_Map = TU_S_Map.to_frame().reset_index()
+        top_user_state = top_user_yr.groupby('States')['Reg_users'].sum()
+        top_user_state = top_user_state.to_frame().reset_index()
 
-        fig1 = px.choropleth(
-            TU_S_Map,
+        top_user_fig1 = px.choropleth(
+            top_user_state,
             geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
             featureidkey='properties.ST_NM',
             locations='States',
             color='Reg_users',
             color_continuous_scale='turbo',
-            range_color = (TU_S_Map['Reg_users'].min(), TU_S_Map['Reg_users'].max()),
-            title = 'Transacion count'
+            range_color = (top_user_state['Reg_users'].min(), top_user_state['Reg_users'].max()),
+            title = 'Registered users'
             )
 
-        fig1.update_geos(fitbounds="locations", visible=False)
+        top_user_fig1.update_geos(fitbounds="locations", visible=False)
 
-        st.plotly_chart(fig1)
+        st.plotly_chart(top_user_fig1)
 
     if selected_state == 'All states':
         pass
@@ -718,53 +684,53 @@ def top_u():
     else:
 
         with row2[1]:
-            TUS = top_user_df[top_user_df["Years"]==selected_year]
+            top_user_yr = top_user_df[top_user_df["Years"]==selected_year]
 
-            TU_S_Map = TUS.groupby('States')['Reg_users'].sum()
-            TU_S_Map = TU_S_Map.to_frame().reset_index()
+            top_user_state = top_user_yr.groupby('States')['Reg_users'].sum()
+            top_user_state = top_user_state.to_frame().reset_index()
             
-            stateTU = TU_S_Map[TU_S_Map['States'] == selected_state]
+            stateTU = top_user_state[top_user_state['States'] == selected_state]
                     
 
-            fig2 = px.choropleth(
+            top_user_fig2 = px.choropleth(
                 stateTU,
                 geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
                 featureidkey='properties.ST_NM',
                 locations='States',
                 color='Reg_users',
                 color_continuous_scale='turbo',
-                range_color = (TU_S_Map['Reg_users'].min(), TU_S_Map['Reg_users'].max()),
-                title = 'Transacion amount'
+                range_color = (top_user_state['Reg_users'].min(), top_user_state['Reg_users'].max()),
+                title = 'Top number of app open in state'
                 )
 
-            fig2.update_geos(fitbounds="locations", visible=False)
+            top_user_fig2.update_geos(fitbounds="locations", visible=False)
 
-            st.plotly_chart(fig2)
+            st.plotly_chart(top_user_fig2)
 
         
 
-            with row3[1]:
+            with row3[3]:
                 selected_quater = st.selectbox("Select a quater", top_user_df['Quater'].unique())
 
                 
-            with row4[0]:
+            with row3[0]:
 
                     TU_Pin = top_user_df.query('States == @selected_state and Years == @selected_year and Quater == @selected_quater').reset_index(drop=True)
+                    TU_Pin['Pincodes']=TU_Pin['Pincodes'].apply(lambda x: x + " -")
 
-                    st.write(TU_Pin[['Pincodes', 'Reg_users']])
-
-                    fig3 = px.bar(TU_Pin, x ='Reg_users',
+                    top_user_fig3 = px.bar(TU_Pin, x ='Reg_users',
                                             y= 'Pincodes',
                                             orientation='h',
                                             title='Top 10 Transaction count'
                                             )
                    
-                    fig3.update_layout(xaxis_title='Reg_users',title_x=0.35,  yaxis_title='Pincodes')
+                    top_user_fig3.update_layout(xaxis_title='Reg_users',title_x=0.35,  yaxis_title='Pincodes')
 
-                    st.plotly_chart(fig3)
+                    st.plotly_chart(top_user_fig3)
+
+                    #st.write(TU_Pin[['Pincodes', 'Reg_users']])
             
-            with row4[1]:
-                pass
+
     
 
 
@@ -811,6 +777,23 @@ def home_page():
     st.markdown(styled_text("Welcome to Phonepe Pulse Data Visualization", 
                             color="green", font_size="50", alignment="center", bold = True), unsafe_allow_html=True)
 
+    st.header("What We Do:")
+    st.write("We look at how people use Phonepe to send money and buy things. Then, we make colorful pictures to help you understand what's happening.")
+
+    st.header("Where to Go:")
+    options = ["See How People Use Phonepe", "Look at How Many People Are Signing Up", "Check Out Different Places in India", "Find Out More"]
+    selected_option = st.selectbox("Select where you want to go:", options)
+
+    st.header("Where We Get Our Information:")
+    st.write("We get our information from Phonepe's computer files. These files tell us how people use the app to send money and do other things.")
+
+    st.header("Special Things to See:")
+    st.write("You can find out what people buy the most in different places, or how many people use Phonepe each year.")
+
+    st.header("How to Use:")
+    st.write("You can pick which place, year, or thing you want to see more about. Just click on the pictures to learn more.")
+
+
 
 
 
@@ -820,44 +803,47 @@ page = st.sidebar.radio(":blue[Choose your page]", ["Home page", "Transacions", 
 
 if page == "Home page":
     home_page()
+    "Analysis of State-wise Financial Transactions in India: Visualizing Trends and Patterns Based on Transaction Types",
+    "Analyzing Regional Financial Transactions in India: Insights from State and District-Level Data",
+    "Exploring Regional Financial Transactions in India: A Deep Dive into Top Transactions by State, Quarter and Pincode"
 
 
 if page == "Transacions":
 
-    st.markdown("Hi")
+    st.title("Understanding Money Flow Across India: Examining Trends, Patterns, and Regional Differences")
 
     choice1 = st.selectbox("", [
-                        "1. Aggregated values of various payment categories",
-                        "2. Total values at the State and District levels",
-                        '3. Totals of top States / Districts /Pin Codes'
+                        "Visualizing Trends and Patterns Based on Transaction Types",
+                        "Insights from State and District-Level Data",
+                        "A Deep Dive into Top Transactions by State, Quarter and Pincode"
     ] )
 
-    if choice1 == "1. Aggregated values of various payment categories":
-        agg_t()
+    if choice1 == "Visualizing Trends and Patterns Based on Transaction Types":
+        agg_trans()
 
-    if choice1 == "2. Total values at the State and District levels":
-        map_t()
+    if choice1 == "Insights from State and District-Level Data":
+        map_trans()
 
-    if choice1 == "3. Totals of top States / Districts /Pin Codes":
-        top_t()
+    if choice1 == "A Deep Dive into Top Transactions by State, Quarter and Pincode":
+        top_trans()
 
 
 if page == "Users":
 
-    st.markdown("Hi")
+    st.title("Analyzing User Registration Trends in India: State, Brand, and District-Level Insights")
 
     choice2 = st.selectbox("", [
-                        "1. Aggregated values of various payment categories",
-                        "2. Total values at the State and District levels",
-                        '3. Totals of top States / Districts /Pin Codes'
-    ] )
+                        "Checking User Sign-Up Trends Across States and Brands in India",
+                        "Analyzing District-level Data of User Registration Patterns in India",
+                        "Top User Registration Patterns Analyzing"
+                             ] )
 
-    if choice2 == "1. Aggregated values of various payment categories":
-        agg_u()
+    if choice2 == "Checking User Sign-Up Trends Across States and Brands in India":
+        agg_user()
 
-    if choice2 == "2. Total values at the State and District levels":
-        map_u()
+    if choice2 == "Analyzing District-level Data of User Registration Patterns in India":
+        map_user()
 
-    if choice2 == "3. Totals of top States / Districts /Pin Codes":
-        top_u()
+    if choice2 == "Top User Registration Patterns Analyzing":
+        top_user()
     
