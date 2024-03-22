@@ -632,7 +632,7 @@ def map_user():
 
 
 
-
+#Top User Registration Patterns Analyzing
 def top_user():
     top_user_df = pd.read_sql('top_user', engine)
 
@@ -743,7 +743,6 @@ st.set_page_config(
     }
 )
 
-
 def styled_text(text, color="black", font_size=None, alignment="left", bold=False, background_color=None, bullet_points=False):
     style = ""
     if color:
@@ -764,7 +763,6 @@ def styled_text(text, color="black", font_size=None, alignment="left", bold=Fals
         text = f'<span style="{style}">{text}</span>'
     return text
 
-
 def home_page():
 
     st.markdown(styled_text("Welcome to Phonepe Pulse Data Visualization", 
@@ -781,12 +779,6 @@ def home_page():
 
     st.header("How to Use:")
     st.write("You can pick which place, year, or thing you want to see more about. Just click on the sidebar to learn more.")
-
-
-
-
-
-
 
 page = st.sidebar.radio(":blue[Choose your page]", ["Home page", "Transacions", "Users"])
 
