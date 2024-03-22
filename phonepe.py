@@ -66,7 +66,7 @@ def agg_trans():
         agg_trans_fig3 = px.scatter(stateAT, x='Transaction_count', y='Transaction_amount', color='Transaction_type',
                         facet_col='Years', facet_col_wrap=3,
                         title='Transaction Count vs Transaction Amount by Transaction Type and Year')
-        agg_trans_fig3.update_layout(xaxis_title='Transaction Count', yaxis_title='Transaction Amount')
+        agg_trans_fig3.update_layout(width=1500, height=600, xaxis_title='Transaction Count', yaxis_title='Transaction Amount')
         st.plotly_chart(agg_trans_fig3)
   
     with row5[1]:
@@ -231,7 +231,7 @@ def map_trans():
                 st.plotly_chart(map_trans_fig4)
 
         with row4[1]:
-            selected_dic = st.selectbox("Select the district", sorted(map_trans_dis_M['District_name'].str.title().unique()))
+            selected_dic = st.selectbox("Select the district", sorted(map_trans_dis_M['District_name'].unique()))
 
             map_trans_dis_bar = map_trans_dis_M.query('District_name == @selected_dic')
         
@@ -246,6 +246,7 @@ def map_trans():
             map_trans_fig5.update_layout(xaxis_title='Quater', title_x=0.35, yaxis_title='Transaction count', legend_title='Type')
 
             st.plotly_chart(map_trans_fig5)
+            
 
         with row5[1]:
             map_trans_fig6 = px.bar(map_trans_dis_bar, y='Transaction_amount', 
@@ -258,6 +259,7 @@ def map_trans():
             map_trans_fig6.update_layout(xaxis_title='Quater', title_x=0.35, yaxis_title='Transaction amount', legend_title='Type')
 
             st.plotly_chart(map_trans_fig6)
+            
 
 
 
@@ -418,7 +420,7 @@ def agg_user():
 
         agg_users_fig1 = px.bar(agg_users_Brand, y='Reg_user_count', 
                                 x='Brands',
-                                color='Quater',
+                                color='Brands',
                                 barmode='stack',
                                 title=f'Registered count of Brands for the {selected_quater} quater of year {selected_year}',
                                 labels={'value': 'Transaction', 'variable': 'Type'})
@@ -601,7 +603,7 @@ def map_user():
                 st.plotly_chart(map_users_fig4)
 
         with row4[1]:
-            selected_dic = st.selectbox("Select the district", sorted(map_users_dis_M['District_name'].str.title().unique()))
+            selected_dic = st.selectbox("Select the district", sorted(map_users_dis_M['District_name'].unique()))
 
             map_users_dis_bar = map_users_dis_M.query('District_name == @selected_dic')
         
@@ -778,10 +780,10 @@ def home_page():
     st.write("We get our information from Phonepe's github. These files tell us how people use the app to send money and do other things.")
 
     st.header("Special Things to See:")
-    st.write("You can find out what people buy the most in different places, or how many people use Phonepe each year.")
+    st.write("You can find out where people buy the most in different places, or how many people use Phonepe each year.")
 
     st.header("How to Use:")
-    st.write("You can pick which place, year, or thing you want to see more about. Just click on the pictures to learn more.")
+    st.write("You can pick which place, year, or thing you want to see more about. Just click on the sidebar to learn more.")
 
 
 
@@ -796,7 +798,7 @@ if page == "Home page":
     
 if page == "Transacions":
 
-    st.title("Understanding Money Flow Across India: Examining Trends, Patterns, and Regional Differences")
+    st.title("Understanding Money Flow Across India: Examining Trends, Patterns and Regional Differences")
 
     choice1 = st.selectbox("", [
                         "Visualizing Trends and Patterns Based on Transaction Types",
@@ -816,7 +818,7 @@ if page == "Transacions":
 
 if page == "Users":
 
-    st.title("Analyzing User Registration Trends in India: State, Brand, and District-Level Insights")
+    st.title("Analyzing User Registration Trends in India: State, Brand  and District-Level Insights")
 
     choice2 = st.selectbox("", [
                         "Checking User Sign-Up Trends Across States and Brands in India",
