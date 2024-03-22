@@ -1,11 +1,9 @@
 import pandas as pd
 import streamlit as st
-
-
-from sqlalchemy import create_engine
-engine = create_engine('postgresql+psycopg2://postgres:1005@localhost/phonepay')
-
 import plotly.express as px
+from sqlalchemy import create_engine
+
+engine = create_engine('postgresql+psycopg2://postgres:1005@localhost/phonepay')
 
 
 # all datframe
@@ -15,7 +13,6 @@ map_trans_df = pd.read_sql('map_trans', engine)
 map_users_df = pd.read_sql('map_users', engine)
 top_trans_df = pd.read_sql('top_trans', engine)
 top_user_df = pd.read_sql('top_user', engine)
-
 
 
 #"Analysis of State-wise Financial Transactions in India: Visualizing Trends and Patterns Based on Transaction Types"
