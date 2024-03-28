@@ -16,6 +16,14 @@ Phonepe Pulse Data Visualization is a web application built with Streamlit for a
   - Analyze district-level data of user registration patterns.
   - Explore top user registration patterns based on states, quarters, and pincodes.
 
+## Technologies Used
+
+- **Python:** The core programming language used for developing the application logic and backend functionality.
+- **Pandas:** Data manipulation and analysis library used for working with structured data.
+- **Plotly:** Interactive visualization library used for creating interactive and customizable plots and charts.
+- **SQL:** Structured Query Language is used for managing and querying the database.
+- **Streamlit:** The web application framework used for building interactive and data-driven applications in Python.
+
 ## Usage
 
 - Choose between transaction analysis and user analysis from the sidebar.
@@ -29,7 +37,3 @@ The data used in this project is sourced from Phonepe's GitHub repository, provi
 ## Contributing
 
 Contributions are welcome! If you find any bugs or have suggestions for improvements, please open an issue or create a pull request.
-
-## License
-
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
